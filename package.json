@@ -1,0 +1,42 @@
+{
+  "name": "my-agent",
+  "version": "1.0.0",
+  "description": "A new mim called my-agent.",
+  "main": "index.js",
+  "scripts": {
+    "build": "node ./node_modules/webpack/bin/webpack.js --progress --config webpack.config.js",
+    "package": "node ./node_modules/@mimik/edge-ms-packager/index.js"
+  },
+  "author": "mimik",
+  "license": "ISC",
+  "dependencies": {
+    "@mimik/mcp-kit": "1.1.1",
+    "@mimik/agent-kit": "1.1.0",
+    "@mimik/edge-ms-helper": "1.3.2",
+    "core-js": "3.36.1",
+    "jsonschema": "1.4.1",
+    "parseurl": "1.3.3",
+    "query-string": "4.3.4",
+    "router": "1.3.8",
+    "url": "0.11.4"
+  },
+  "overrides": {
+    "router": {
+      "path-to-regexp": "0.1.12"
+    }
+  },
+  "devDependencies": {
+    "@mimik/edge-ms-packager": "1.2.0",
+    "@mimik/mimik-edge-cli": "2.1.0",
+    "@mimik/swagger-mw-codegen": "2.1.1",
+    "@babel/core": "7.28.3",
+    "@babel/preset-env": "7.28.3",
+    "@babel/eslint-parser": "7.25.1",
+    "babel-loader": "9.1.0",
+    "eslint": "9.34.0",
+    "eslint-webpack-plugin": "5.0.2",
+    "terser-webpack-plugin": "5.3.14",
+    "webpack": "5.101.3",
+    "webpack-cli": "6.0.1"
+  }
+}

@@ -1,0 +1,145 @@
+@host = http://localhost:8083
+@mcmApiKey = {{$dotenv MCM_API_KEY}}
+@inferenceApiKey = {{$dotenv INFERENCE_API_KEY}}
+@inferenceModel = {{$dotenv INFERENCE_MODEL}}
+@insightApiKey = {{$dotenv INSIGHT_API_KEY}}
+
+# =============================================================================
+# MODEL PROVISIONING - Run these first if qwen3 is not installed
+# =============================================================================
+
+### List models (check if qwen3 is already installed)
+GET {{host}}/mimik-ai/store/v1/models
+Authorization: Bearer {{inferenceApiKey}}
+
+### Create qwen3 model metadata
+POST {{host}}/mimik-ai/store/v1/models
+Authorization: Bearer {{inferenceApiKey}}
+Content-Type: application/json
+
+{
+  "id": "qwen3-1.7b",
+  "version": "1.0.0",
+  "kind": "llm",
+  "gguf": {
+    "initContextSize": 12000,
+    "initGpuLayerSize": 99
+  }
+}
+
+### Download qwen3 model from Hugging Face
+POST {{host}}/mimik-ai/store/v1/models/qwen3-1.7b/download
+Authorization: Bearer {{inferenceApiKey}}
+Content-Type: application/json
+
+{
+  "url": "https://huggingface.co/unsloth/Qwen3-1.7B-GGUF/resolve/main/Qwen3-1.7B-Q4_K_M.gguf?download=true"
+}
+
+# =============================================================================
+# AGENT DEPLOYMENT
+# =============================================================================
+
+### Upload image
+POST {{host}}/mcm/v1/images
+Authorization: Bearer {{mcmApiKey}}
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="image"; filename="my-agent-v1-1.0.0.tar"
+
+< ../deploy/my-agent-v1-1.0.0.tar
+--boundary--
+
+### Deploy mim
+POST {{host}}/mcm/v1/mims
+Authorization: Bearer {{mcmApiKey}}
+Content-Type: application/json
+
+{
+  "name": "my-agent",
+  "image": "my-agent-v1",
+  "env": {
+    "MCM.BASE_API_PATH": "/my-agent/v1",
+    "MCM.API_ALIAS": "true",
+    "MCM.MAX_EXECUTION_TIME_SEC": "120",
+    "USER2AGENT_API": "openai",
+    "INFERENCE_API_KEY": "{{inferenceApiKey}}",
+    "INFERENCE_MODEL": "{{inferenceModel}}",
+    "INFERENCE_BASE_URI": "/mimik-ai/openai/v1/chat/completions",
+    "INSIGHT_API_KEY": "{{insightApiKey}}"
+  }
+}
+
+# =============================================================================
+# TESTING
+# =============================================================================
+
+### Healthcheck
+GET {{host}}/api/my-agent/v1/healthcheck
+
+# =============================================================================
+# MCP TOOLS
+# =============================================================================
+
+### MCP - List available tools
+POST {{host}}/api/my-agent/v1/mcp
+Content-Type: application/json
+
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/list"
+}
+
+### MCP - List notes
+POST {{host}}/api/my-agent/v1/mcp
+Content-Type: application/json
+
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "tools/call",
+  "params": {
+    "name": "listNotes",
+    "arguments": {}
+  }
+}
+
+### Chat - simple message
+POST {{host}}/api/my-agent/v1/chat/completions
+Content-Type: application/json
+
+{
+  "messages": [
+    {"role": "user", "content": "What devices are on my network?"}
+  ]
+}
+
+### Chat - with user context
+POST {{host}}/api/my-agent/v1/chat/completions
+Content-Type: application/json
+
+{
+  "messages": [
+    {"role": "user", "content": "Help me with my setup"}
+  ],
+  "context": {
+    "userName": "John",
+    "preferences": {
+      "language": "en",
+      "verbosity": "concise"
+    }
+  }
+}
+
+### Chat - with session tracking
+POST {{host}}/api/my-agent/v1/chat/completions
+Content-Type: application/json
+x-session-id: test-session-001
+
+{
+  "messages": [
+    {"role": "user", "content": "What devices are on my network?"}
+  ]
+}

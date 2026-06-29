@@ -1,0 +1,15 @@
+{
+  "name": "my-agent",
+  "clientId": "api",
+  "image": "my-agent-v1",
+  "env": {
+    "MCM.BASE_API_PATH": "/my-agent/v1",
+    "MCM.API_ALIAS": "true",
+    "MCM.MAX_EXECUTION_TIME_SEC": "120",
+    "USER2AGENT_API": "openai",
+    "INFERENCE_API_KEY": "1234",
+    "INFERENCE_MODEL": "qwen3-1.7b",
+    "INFERENCE_BASE_URI": "/mimik-ai/openai/v1/chat/completions",
+    "INSIGHT_API_KEY": "1234"
+  }
+}

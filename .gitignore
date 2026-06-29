@@ -1,0 +1,7 @@
+node_modules/
+build/
+deploy/
+.mimoe/
+.env
+.edgetoken
+.DS_Store

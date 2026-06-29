@@ -1,0 +1,5 @@
+package:
+  imageName: my-agent
+  imageIndexFilePath: ./build/index.js
+  outputFolder: ./deploy
+  
